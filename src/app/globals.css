@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+:root {
+  --sidebar: #101D35;
+  --sidebar-active: #182944;
+  --mint: #8DE5B1;
+  --green: #37BD83;
+  --background: #F4F7FB;
+  --surface: #FFFFFF;
+  --foreground: #101D35;
+  --muted: #64748B;
+}
