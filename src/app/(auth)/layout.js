@@ -1,9 +1,9 @@
-import React from 'react';
-
-export default function LoginLayout({ children }) {
+export default function AuthLayout({ children }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      {children}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-md">
+        {children}
+      </div>
     </div>
   );
 }
