@@ -64,7 +64,9 @@ export default function DoctorForm({
     { name: "qualification", label: "Qualification", placeholder: "MBBS, FCPS" },
     { name: "experience", label: "Experience (years)", placeholder: "8", type: "number" },
     { name: "consultationFee", label: "Consultation Fee", placeholder: "1000", type: "number" },
+    { name: "schedule", label: "Visiting Hours / Schedule", placeholder: "Sat - Thu: 4:00 PM - 9:00 PM" },
     { name: "address", label: "Address", placeholder: "Dhaka, Bangladesh" },
+    { name: "chamber", label: "Chamber", placeholder: "Dhaka Medical Center" },
   ];
 
   return (
