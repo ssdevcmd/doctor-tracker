@@ -1,295 +1,3 @@
-// "use client";
-
-// import { useCallback, useEffect, useState } from "react";
-// import Link from "next/link";
-// import {
-//   Plus,
-//   Search,
-//   Eye,
-//   Pencil,
-//   Trash2,
-//   Stethoscope,
-//   RefreshCw,
-// } from "lucide-react";
-// import { apiFetch } from "@/lib/api";
-
-// export default function DoctorsPage() {
-//   const [doctors, setDoctors] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState("");
-//   const [search, setSearch] = useState("");
-//   const [status, setStatus] = useState("");
-//   const [page, setPage] = useState(1);
-//   const [pagination, setPagination] = useState({
-//     total: 0,
-//     totalPages: 1,
-//   });
-
-//   const fetchDoctors = useCallback(async () => {
-//     setLoading(true);
-//     setError("");
-
-//     try {
-//       const params = new URLSearchParams({
-//         page: String(page),
-//         limit: "10",
-//       });
-
-//       if (search.trim()) params.set("search", search.trim());
-//       if (status) params.set("status", status);
-
-//       const data = await apiFetch(`/api/doctors?${params.toString()}`);
-
-//       setDoctors(data.items || []);
-//       setPagination({
-//         total: data.total || 0,
-//         totalPages: data.totalPages || 1,
-//       });
-//     } catch (err) {
-//       setError(err.message || "Could not load doctors.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [page, search, status]);
-
-//   useEffect(() => {
-//     fetchDoctors();
-//   }, [fetchDoctors]);
-
-//   const handleDelete = async (id) => {
-//     const confirmed = window.confirm(
-//       "Are you sure you want to delete this doctor? Their patients will remain in the system but become unassigned."
-//     );
-
-//     if (!confirmed) return;
-
-//     try {
-//       await apiFetch(`/api/doctors/${id}`, {
-//         method: "DELETE",
-//       });
-
-//       if (doctors.length === 1 && page > 1) {
-//         setPage((previous) => previous - 1);
-//       } else {
-//         fetchDoctors();
-//       }
-//     } catch (err) {
-//       window.alert(err.message || "Failed to delete doctor.");
-//     }
-//   };
-
-//   const handleSearch = (e) => {
-//     e.preventDefault();
-//     setPage(1);
-//     fetchDoctors();
-//   };
-
-//   return (
-//     <div className="mx-auto max-w-7xl space-y-6">
-//       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-//         <div>
-//           <p className="text-sm font-medium text-[#37BD83]">
-//             MANAGEMENT
-//           </p>
-//           <h1 className="mt-1 text-2xl font-bold text-[#101D35]">
-//             Doctors
-//           </h1>
-//           <p className="mt-1 text-sm text-slate-500">
-//             Manage your doctors and their information.
-//           </p>
-//         </div>
-
-//         <Link
-//           href="/dashboard/doctors/create"
-//           className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#37BD83] px-5 py-3 text-sm font-semibold text-white hover:bg-[#2da873]"
-//         >
-//           <Plus size={18} />
-//           Add Doctor
-//         </Link>
-//       </div>
-
-//       <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row">
-//         <form onSubmit={handleSearch} className="flex flex-1 gap-2">
-//           <div className="relative flex-1">
-//             <Search
-//               size={18}
-//               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-//             />
-//             <input
-//               value={search}
-//               onChange={(e) => setSearch(e.target.value)}
-//               placeholder="Search by name, email or specialization..."
-//               className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none focus:border-[#37BD83]"
-//             />
-//           </div>
-
-//           <button
-//             type="submit"
-//             className="rounded-xl bg-[#101D35] px-4 text-sm font-medium text-white hover:bg-[#182944]"
-//           >
-//             Search
-//           </button>
-//         </form>
-
-//         <select
-//           value={status}
-//           onChange={(e) => {
-//             setStatus(e.target.value);
-//             setPage(1);
-//           }}
-//           className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#37BD83]"
-//         >
-//           <option value="">All statuses</option>
-//           <option value="active">Active</option>
-//           <option value="inactive">Inactive</option>
-//         </select>
-
-//         <button
-//           onClick={fetchDoctors}
-//           title="Refresh"
-//           className="flex items-center justify-center rounded-xl border border-slate-200 px-4 py-3 text-slate-600 hover:bg-slate-50"
-//         >
-//           <RefreshCw size={17} />
-//         </button>
-//       </div>
-
-//       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-//         <div className="border-b border-slate-100 px-5 py-4">
-//           <h2 className="font-semibold text-[#101D35]">
-//             All Doctors ({pagination.total})
-//           </h2>
-//         </div>
-
-//         {error && (
-//           <div className="m-5 rounded-lg bg-red-50 p-4 text-sm text-red-600">
-//             {error}
-//           </div>
-//         )}
-
-//         {loading ? (
-//           <div className="p-12 text-center text-sm text-slate-500">
-//             Loading doctors...
-//           </div>
-//         ) : doctors.length === 0 ? (
-//           <div className="p-12 text-center">
-//             <Stethoscope className="mx-auto text-slate-300" size={36} />
-//             <h3 className="mt-3 font-semibold text-[#101D35]">
-//               No doctors found
-//             </h3>
-//             <p className="mt-1 text-sm text-slate-500">
-//               Add a doctor or try a different search.
-//             </p>
-//           </div>
-//         ) : (
-//           <>
-//             <div className="overflow-x-auto">
-//               <table className="w-full min-w-[750px] text-left text-sm">
-//                 <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-//                   <tr>
-//                     <th className="px-5 py-4 font-semibold">Doctor</th>
-//                     <th className="px-5 py-4 font-semibold">Phone</th>
-//                     <th className="px-5 py-4 font-semibold">Specialization</th>
-//                     <th className="px-5 py-4 font-semibold">Status</th>
-//                     <th className="px-5 py-4 text-right font-semibold">Actions</th>
-//                   </tr>
-//                 </thead>
-
-//                 <tbody className="divide-y divide-slate-100">
-//                   {doctors.map((doctor) => (
-//                     <tr key={doctor._id} className="hover:bg-slate-50/70">
-//                       <td className="px-5 py-4">
-//                         <p className="font-semibold text-[#101D35]">
-//                           {doctor.name}
-//                         </p>
-//                         <p className="mt-1 text-xs text-slate-500">
-//                           {doctor.email}
-//                         </p>
-//                       </td>
-
-//                       <td className="px-5 py-4 text-slate-600">
-//                         {doctor.phone}
-//                       </td>
-
-//                       <td className="px-5 py-4 text-slate-600">
-//                         {doctor.specialization}
-//                       </td>
-
-//                       <td className="px-5 py-4">
-//                         <span
-//                           className={`rounded-full px-3 py-1 text-xs font-medium ${
-//                             doctor.status === "active"
-//                               ? "bg-green-50 text-green-700"
-//                               : "bg-slate-100 text-slate-600"
-//                           }`}
-//                         >
-//                           {doctor.status}
-//                         </span>
-//                       </td>
-
-//                       <td className="px-5 py-4">
-//                         <div className="flex justify-end gap-2">
-//                           <Link
-//                             href={`/dashboard/doctors/${doctor._id}`}
-//                             title="View doctor"
-//                             className="rounded-lg p-2 text-slate-500 hover:bg-green-50 hover:text-[#37BD83]"
-//                           >
-//                             <Eye size={17} />
-//                           </Link>
-
-//                           <Link
-//                             href={`/dashboard/doctors/${doctor._id}/edit`}
-//                             title="Edit doctor"
-//                             className="rounded-lg p-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600"
-//                           >
-//                             <Pencil size={17} />
-//                           </Link>
-
-//                           <button
-//                             onClick={() => handleDelete(doctor._id)}
-//                             title="Delete doctor"
-//                             className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"
-//                           >
-//                             <Trash2 size={17} />
-//                           </button>
-//                         </div>
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-
-//             <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-//               <p className="text-sm text-slate-500">
-//                 Showing page {page} of {pagination.totalPages}
-//               </p>
-
-//               <div className="flex gap-2">
-//                 <button
-//                   disabled={page <= 1}
-//                   onClick={() => setPage((previous) => previous - 1)}
-//                   className="rounded-lg border border-slate-200 px-4 py-2 text-sm disabled:opacity-40"
-//                 >
-//                   Previous
-//                 </button>
-
-//                 <button
-//                   disabled={page >= pagination.totalPages}
-//                   onClick={() => setPage((previous) => previous + 1)}
-//                   className="rounded-lg border border-slate-200 px-4 py-2 text-sm disabled:opacity-40"
-//                 >
-//                   Next
-//                 </button>
-//               </div>
-//             </div>
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-
 "use client";
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -318,7 +26,7 @@ const fieldClass =
   "rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#37BD83] focus:ring-2 focus:ring-[#37BD83]/20";
 
 /* ------------------------------------------------------------------ */
-/* Helpers                                                             */
+/* Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
 function formatDate(value) {
@@ -377,7 +85,7 @@ function useFilters() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Small components                                                    */
+/* Small components                                                   */
 /* ------------------------------------------------------------------ */
 
 function StatusBadge({ status }) {
@@ -511,7 +219,7 @@ function ConfirmDialog({ open, title, description, confirmLabel, busy, onConfirm
 }
 
 /* ------------------------------------------------------------------ */
-/* Page                                                                */
+/* Page                                                               */
 /* ------------------------------------------------------------------ */
 
 function DoctorsContent() {
@@ -527,7 +235,6 @@ function DoctorsContent() {
   useEffect(() => () => clearTimeout(searchTimer.current), []);
 
   useEffect(() => {
-    // Search changed from outside (Clear filters, back button): show it in the box
     if (search !== committedSearch.current) {
       committedSearch.current = search;
       setSearchText(search);
@@ -560,7 +267,7 @@ function DoctorsContent() {
 
     apiFetch(`/api/doctors?${params.toString()}`, { signal: controller.signal })
       .then((data) => {
-        if (controller.signal.aborted) return; // a newer request replaced this one
+        if (controller.signal.aborted) return;
         setResult({
           key: queryKey,
           items: data.items ?? [],
@@ -579,7 +286,6 @@ function DoctorsContent() {
 
   const { items: doctors, total, totalPages, error } = result;
 
-  // The page no longer exists (e.g. filters narrowed the list): go to the last one
   useEffect(() => {
     if (!loading && !error && page > totalPages) update({ page: String(totalPages) });
   }, [loading, error, page, totalPages, update]);
@@ -620,199 +326,173 @@ function DoctorsContent() {
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-medium text-[#37BD83]">MANAGEMENT</p>
-          <h1 className="mt-1 text-2xl font-bold text-[#101D35]">Doctors</h1>
-          <p className="mt-1 text-sm text-slate-500">Manage your doctors and their information.</p>
+          <h1 className="text-2xl font-bold text-[#101D35]">Doctors Management</h1>
+          <p className="text-sm text-slate-500">Manage all registered doctors, schedules, and statuses.</p>
         </div>
-
         <Link
           href="/dashboard/doctors/create"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#37BD83] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#2da873]"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#37BD83] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2fa370]"
         >
           <Plus size={18} aria-hidden="true" />
-          Add Doctor
+          Add New Doctor
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-12">
-        <div className="relative sm:col-span-2 lg:col-span-5">
-          <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* Notice Banner */}
+      {notice && (
+        <div
+          className={`flex items-center gap-3 rounded-xl p-4 text-sm font-medium ${
+            notice.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+          }`}
+        >
+          {notice.type === "success" ? <Check size={18} /> : <AlertTriangle size={18} />}
+          <span>{notice.message}</span>
+        </div>
+      )}
+
+      {/* Filters Bar */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-3.5 text-slate-400" size={18} />
           <input
-            type="search"
-            aria-label="Search doctors"
+            type="text"
+            placeholder="Search doctors..."
             value={searchText}
             onChange={handleSearchChange}
-            placeholder="Search by name, email or specialization..."
-            className={`${fieldClass} w-full pl-10 [&::-webkit-search-cancel-button]:hidden`}
+            className={`${fieldClass} w-full pl-10`}
           />
         </div>
 
         <select
-          aria-label="Filter by status"
           value={status}
-          onChange={(event) => update({ status: event.target.value })}
-          className={`${fieldClass} lg:col-span-2`}
+          onChange={(e) => update({ status: e.target.value })}
+          className={fieldClass}
         >
-          <option value="">All statuses</option>
+          <option value="">All Statuses</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
 
-        <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-4">
-          <input type="date" aria-label="Added from" value={from} max={to || undefined} onChange={(event) => update({ from: event.target.value, to })} className={`${fieldClass} min-w-0 flex-1`} />
-          <span className="text-sm text-slate-400">to</span>
-          <input type="date" aria-label="Added until" value={to} min={from || undefined} onChange={(event) => update({ to: event.target.value, from })} className={`${fieldClass} min-w-0 flex-1`} />
-        </div>
+        <input
+          type="date"
+          value={from}
+          onChange={(e) => update({ from: e.target.value })}
+          className={fieldClass}
+          placeholder="From Date"
+        />
 
-        <div className="flex gap-2 lg:col-span-1">
-          <button
-            type="button"
-            onClick={() => setReloadKey((key) => key + 1)}
-            aria-label="Refresh"
-            title="Refresh"
-            className="flex flex-1 items-center justify-center rounded-xl border border-slate-200 px-3 py-3 text-slate-600 hover:bg-slate-50"
-          >
-            <RefreshCw size={17} aria-hidden="true" className={loading ? "animate-spin" : ""} />
-          </button>
-        </div>
-
-        {hasFilters && (
-          <div className="sm:col-span-2 lg:col-span-12">
-            <button type="button" onClick={clear} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#37BD83] hover:underline">
-              <X size={14} aria-hidden="true" />
-              Clear all filters
-            </button>
-          </div>
-        )}
+        <input
+          type="date"
+          value={to}
+          onChange={(e) => update({ to: e.target.value })}
+          className={fieldClass}
+          placeholder="To Date"
+        />
       </div>
 
-      {/* Results */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <div className="border-b border-slate-100 px-5 py-4">
-          <h2 aria-live="polite" className="font-semibold text-[#101D35]">
-            All Doctors ({total})
-          </h2>
+      {hasFilters && (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={clear}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+          >
+            <X size={14} /> Clear filters
+          </button>
         </div>
+      )}
 
-        {error && (
-          <div role="alert" className="m-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-red-50 p-4 text-sm text-red-600">
-            <span>{error}</span>
-            <button type="button" onClick={() => setReloadKey((key) => key + 1)} className="rounded-lg bg-white px-3 py-1.5 font-semibold ring-1 ring-red-200 hover:bg-red-100">
-              Try again
+      {/* Main Table Card */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        {error ? (
+          <div className="p-12 text-center">
+            <AlertTriangle className="mx-auto text-red-500" size={32} />
+            <p className="mt-2 text-sm font-medium text-slate-800">{error}</p>
+            <button
+              type="button"
+              onClick={() => setReloadKey((k) => k + 1)}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <RefreshCw size={14} /> Try again
             </button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/75 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="px-5 py-3.5">Name & Email</th>
+                  <th className="px-5 py-3.5">Specialization</th>
+                  <th className="px-5 py-3.5">Chamber & Phone</th>
+                  <th className="px-5 py-3.5">Status</th>
+                  <th className="px-5 py-3.5">Joined</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {loading && doctors.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-12 text-center text-slate-400">
+                      Loading doctors...
+                    </td>
+                  </tr>
+                ) : doctors.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-12 text-center text-slate-500">
+                      No doctors found.
+                    </td>
+                  </tr>
+                ) : (
+                  doctors.map((doctor) => (
+                    <tr key={doctor._id} className="transition hover:bg-slate-50/50">
+                      <td className="px-5 py-4">
+                        <div className="font-semibold text-[#101D35]">{doctor.name}</div>
+                        <div className="text-xs text-slate-500">{doctor.email}</div>
+                      </td>
+                      <td className="px-5 py-4 text-slate-600">
+                        <div className="font-medium">{doctor.specialization || "-"}</div>
+                        <div className="text-xs text-slate-400">{doctor.qualification || ""}</div>
+                      </td>
+                      <td className="px-5 py-4 text-slate-600">
+                        <div className="font-medium">{doctor.chamber || "-"}</div>
+                        <div className="text-xs text-slate-400">{doctor.phone || "-"}</div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <StatusBadge status={doctor.status} />
+                      </td>
+                      <td className="px-5 py-4 text-xs text-slate-500">
+                        {formatDate(doctor.createdAt)}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <RowActions doctor={doctor} onDelete={setToDelete} />
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         )}
 
-        {loading && doctors.length === 0 ? (
-          <div className="space-y-3 p-5" aria-busy="true" aria-label="Loading doctors">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="h-14 animate-pulse rounded-xl bg-slate-100" />
-            ))}
-          </div>
-        ) : doctors.length === 0 && !error ? (
-          <div className="p-12 text-center">
-            <Stethoscope className="mx-auto text-slate-300" size={36} aria-hidden="true" />
-            <h3 className="mt-3 font-semibold text-[#101D35]">{hasFilters ? "No doctors match your filters" : "No doctors found"}</h3>
-            <p className="mt-1 text-sm text-slate-500">{hasFilters ? "Try changing or clearing the filters." : "Add a doctor to get started."}</p>
-            {hasFilters && (
-              <button type="button" onClick={clear} className="mt-4 text-sm font-semibold text-[#37BD83] hover:underline">
-                Clear all filters
-              </button>
-            )}
-          </div>
-        ) : doctors.length > 0 ? (
-          <div className={`transition-opacity ${loading ? "opacity-60" : ""}`}>
-            {/* Tablet and desktop: table */}
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[760px] text-left text-sm">
-                <caption className="sr-only">List of doctors</caption>
-                <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-                  <tr>
-                    <th scope="col" className="px-5 py-4 font-semibold">Doctor</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Phone</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Specialization</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Status</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Added</th>
-                    <th scope="col" className="px-5 py-4 text-right font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {doctors.map((doctor) => (
-                    <tr key={doctor._id} className="hover:bg-slate-50/70">
-                      <td className="px-5 py-4">
-                        <p className="font-semibold text-[#101D35]">{doctor.name}</p>
-                        <p className="mt-1 text-xs text-slate-500">{doctor.email}</p>
-                      </td>
-                      <td className="px-5 py-4 text-slate-600">{doctor.phone}</td>
-                      <td className="px-5 py-4 text-slate-600">{doctor.specialization}</td>
-                      <td className="px-5 py-4"><StatusBadge status={doctor.status} /></td>
-                      <td className="px-5 py-4 text-slate-600">{formatDate(doctor.createdAt)}</td>
-                      <td className="px-5 py-4"><RowActions doctor={doctor} onDelete={setToDelete} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile: cards */}
-            <ul className="divide-y divide-slate-100 md:hidden">
-              {doctors.map((doctor) => (
-                <li key={doctor._id} className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold text-[#101D35]">{doctor.name}</p>
-                      <p className="truncate text-xs text-slate-500">{doctor.email}</p>
-                    </div>
-                    <StatusBadge status={doctor.status} />
-                  </div>
-                  <p className="mt-2 text-sm text-slate-600">{doctor.specialization} · {doctor.phone}</p>
-                  <div className="mt-2 flex items-center justify-between">
-                    <p className="text-xs text-slate-400">Added {formatDate(doctor.createdAt)}</p>
-                    <RowActions doctor={doctor} onDelete={setToDelete} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-
-        {doctors.length > 0 && <Pagination page={page} totalPages={totalPages} total={total} onPageChange={(next) => update({ page: String(next) })} />}
+        <Pagination page={page} totalPages={totalPages} total={total} onPageChange={(p) => update({ page: String(p) })} />
       </div>
 
       <ConfirmDialog
         open={Boolean(toDelete)}
-        title="Delete this doctor?"
-        description={toDelete ? `${toDelete.name} will be deleted. Their patients will remain in the system but become unassigned.` : ""}
-        confirmLabel="Delete"
+        title="Delete Doctor"
+        description={`Are you sure you want to delete ${toDelete?.name}? This action cannot be undone.`}
+        confirmLabel="Delete Doctor"
         busy={deleting}
         onConfirm={confirmDelete}
         onCancel={() => !deleting && setToDelete(null)}
       />
-
-      {/* Success / error message */}
-      {notice && (
-        <div
-          role="status"
-          className={`fixed right-4 top-4 z-50 flex max-w-sm items-start gap-3 rounded-xl px-4 py-3 text-sm shadow-lg ${
-            notice.type === "success" ? "bg-[#101D35] text-white" : "bg-red-600 text-white"
-          }`}
-        >
-          {notice.type === "success" ? <Check size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-[#37BD83]" /> : <AlertTriangle size={18} aria-hidden="true" className="mt-0.5 shrink-0" />}
-          <span className="flex-1">{notice.message}</span>
-          <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss message" className="shrink-0 opacity-70 hover:opacity-100">
-            <X size={16} aria-hidden="true" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
 
-// useSearchParams needs a Suspense boundary
 export default function DoctorsPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-sm text-slate-500">Loading doctors...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-slate-500">Loading...</div>}>
       <DoctorsContent />
     </Suspense>
   );
