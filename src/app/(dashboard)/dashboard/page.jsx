@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,6 +10,7 @@ import {
   ArrowRight,
   Plus,
 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 import StatCard from "@/components/dashboard/StatCard";
 import PatientChart from "@/components/dashboard/PatientChart";
@@ -46,41 +46,33 @@ export default function DashboardPage() {
 
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     async function fetchDashboardData() {
       try {
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const [
+          statsData,
+          chartData,
+          doctorData,
+          patientsData,
+        ] = await Promise.all([
+          apiFetch("/api/dashboard/stats"),
+          apiFetch("/api/dashboard/monthly-patients"),
+          apiFetch("/api/dashboard/patients-per-doctor"),
+          apiFetch("/api/patients?limit=5&page=1"),
+        ]);
 
-        const [statsRes, chartRes, doctorRes, patientsRes] =
-          await Promise.all([
-            fetch(`${API_URL}/api/dashboard/stats`),
-            fetch(`${API_URL}/api/dashboard/monthly-patients`),
-            fetch(`${API_URL}/api/dashboard/patients-per-doctor`),
-            fetch(`${API_URL}/api/patients?limit=5&page=1`),
-          ]);
+        setStats(statsData);
+        setMonthlyPatients(chartData);
+        setPatientsPerDoctor(doctorData);
 
-        if (statsRes.ok) {
-          const data = await statsRes.json();
-          setStats(data);
-        }
+        setRecentPatients(
+          patientsData.items ||
+          patientsData.patients ||
+          patientsData.data ||
+          []
+        );
 
-        if (chartRes.ok) {
-          const data = await chartRes.json();
-          setMonthlyPatients(data);
-        }
-
-        if (doctorRes.ok) {
-          const data = await doctorRes.json();
-          setPatientsPerDoctor(data);
-        }
-
-        if (patientsRes.ok) {
-          const data = await patientsRes.json();
-          setRecentPatients(
-            data.items || data.patients || data.data || []
-          );
-        }
       } catch (error) {
         console.error("Dashboard data loading failed:", error);
       } finally {
@@ -90,6 +82,7 @@ export default function DashboardPage() {
 
     fetchDashboardData();
   }, []);
+
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
