@@ -1,10 +1,9 @@
-
 "use client";
 
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -22,22 +21,19 @@ const defaultData = [
 ];
 
 export default function PatientChart({ data = defaultData }) {
-  const chartData = data || [];
+  const chartData = data.length > 0 ? data : [];
 
   return (
     <div className="rounded-2xl border border-[#E8EDF3] bg-white p-5 sm:p-6">
-      {/* Chart Header */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-[#101D35]">
           Patient Overview
         </h2>
-
         <p className="mt-1 text-sm text-[#94A3B8]">
           Monthly patient registration statistics
         </p>
       </div>
 
-      {/* Chart */}
       {chartData.length === 0 ? (
         <div className="flex h-[280px] items-center justify-center text-sm text-[#94A3B8]">
           No patient statistics available.
@@ -45,37 +41,10 @@ export default function PatientChart({ data = defaultData }) {
       ) : (
         <div className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
+            <LineChart
               data={chartData}
-              margin={{
-                top: 10,
-                right: 10,
-                left: -20,
-                bottom: 0,
-              }}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
-              <defs>
-                <linearGradient
-                  id="patientGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="0%"
-                    stopColor="#37BD83"
-                    stopOpacity={0.25}
-                  />
-
-                  <stop
-                    offset="95%"
-                    stopColor="#37BD83"
-                    stopOpacity={0.01}
-                  />
-                </linearGradient>
-              </defs>
-
               <CartesianGrid
                 stroke="#EEF2F6"
                 strokeDasharray="4 4"
@@ -94,14 +63,9 @@ export default function PatientChart({ data = defaultData }) {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: "#94A3B8", fontSize: 12 }}
-                allowDecimals={false}
               />
 
               <Tooltip
-                cursor={{
-                  stroke: "#37BD83",
-                  strokeDasharray: "4 4",
-                }}
                 contentStyle={{
                   borderRadius: "12px",
                   border: "1px solid #E8EDF3",
@@ -110,34 +74,23 @@ export default function PatientChart({ data = defaultData }) {
                 labelStyle={{
                   color: "#101D35",
                   fontWeight: 600,
-                  marginBottom: "4px",
                 }}
-                formatter={(value) => [
-                  `${value} patients`,
-                  "Registrations",
-                ]}
               />
 
-              <Area
+              <Line
                 type="monotone"
                 dataKey="patients"
                 stroke="#37BD83"
                 strokeWidth={3}
-                fill="url(#patientGradient)"
                 dot={{
                   r: 4,
                   fill: "#37BD83",
                   stroke: "#FFFFFF",
                   strokeWidth: 2,
                 }}
-                activeDot={{
-                  r: 7,
-                  fill: "#37BD83",
-                  stroke: "#FFFFFF",
-                  strokeWidth: 2,
-                }}
+                activeDot={{ r: 7 }}
               />
-            </AreaChart>
+            </LineChart>
           </ResponsiveContainer>
         </div>
       )}
