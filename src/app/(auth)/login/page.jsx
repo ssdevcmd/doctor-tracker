@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -55,6 +54,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#F4F7FB] px-4 py-10">
